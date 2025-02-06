@@ -1,0 +1,12 @@
+# Ignore .env files
+.env
+
+# Ignore node_modules
+node_modules/
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+
+# Ignore dist directories
+dist/
