@@ -1,6 +1,13 @@
 import random
 from IPython.display import Image, display
 from langgraph.graph import StateGraph, START, END
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
+load_dotenv() 
+
+#llm = ChatOpenAI()
+#llm.invoke("Hello, world!")
+
 
 # Define the state class
 class State:
