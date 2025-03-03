@@ -70,6 +70,6 @@ builder.add_edge("process_tool_response", END)
 
 graph = builder.compile()
 
-messages = graph.invoke({"messages": HumanMessage(content="Multiply 5 and 6")})  # Multiply 5 and 6 or Hi
+messages = graph.invoke({"messages": HumanMessage(content="Devide 5 and 6")})  # Multiply 5 and 6 or Hi
 for m in messages['messages']:
     m.pretty_print()
