@@ -1,5 +1,4 @@
 from pprint import pprint
-import random
 from langchain_core.messages import AIMessage, HumanMessage
 import os
 from dotenv import load_dotenv
@@ -9,8 +8,6 @@ from langchain_core.messages import AnyMessage
 from typing import Annotated
 from langgraph.graph.message import add_messages
 from langgraph.graph import MessagesState, StateGraph, START, END
-from IPython.display import Image, display
-from langchain_core.tools import tool
 from langgraph.prebuilt import  ToolNode
 
 load_dotenv()
@@ -53,23 +50,26 @@ def custom_tools_condition(state: MessagesState) -> str:
     print("3. custom_tools_condition - Returning node_1")
     return END
 
-def tool_calling_llm(state: MessagesState):
-    print("1. Tool calling LLM:", state["messages"])
+def calling_llm(state: MessagesState):
+    print("1. Calling LLM with binded Tools :", state["messages"])
     return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
-builder = StateGraph(MessagesState)
-builder.add_node("node_1", tool_calling_llm)
-builder.add_node("tools", ToolNode([pomnozimacke, divide]))
-builder.add_conditional_edges(
-    "node_1",
-    custom_tools_condition, 
-)
+def process_tool_response(state: MessagesState):
+    """Passes tool results back to the LLM for further processing."""
+    return {"messages": [llm.invoke(state["messages"])]}
 
+builder = StateGraph(MessagesState)
+builder.add_node("node_1", calling_llm)
+builder.add_node("tools", ToolNode([pomnozimacke, divide]))
+builder.add_node("process_tool_response", process_tool_response)
+
+builder.add_conditional_edges("node_1", custom_tools_condition)
 builder.add_edge(START, "node_1")
-builder.add_edge("node_1", END)
+builder.add_edge("tools", "process_tool_response")
+builder.add_edge("process_tool_response", END)
 
 graph = builder.compile()
 
-messages = graph.invoke({"messages": HumanMessage(content="Devide 5 and 6")})  # Multiply 5 and 6 or Hi
+messages = graph.invoke({"messages": HumanMessage(content="Multiply 5 and 6")})  # Multiply 5 and 6 or Hi
 for m in messages['messages']:
     m.pretty_print()
