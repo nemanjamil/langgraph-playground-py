@@ -87,7 +87,6 @@ def tool_calling_llm(state: MessagesState):
 builder = StateGraph(MessagesState)
 builder.add_node("node_1", tool_calling_llm)
 
-
 builder.add_edge(START, "node_1")
 builder.add_edge("node_1", END)
 
@@ -95,6 +94,6 @@ graph = builder.compile()
 
 
 
-messages = graph.invoke({"messages": HumanMessage(content="Hi")})  # Divide 10 by 2 or Multiply 5 and 6 or Hi
+messages = graph.invoke({"messages": HumanMessage(content="Multiply 10 by 2")})  # Divide 10 by 2 or Multiply 5 and 6 or Hi
 for m in messages['messages']:
     m.pretty_print()
