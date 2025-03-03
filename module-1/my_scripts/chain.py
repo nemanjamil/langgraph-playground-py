@@ -27,7 +27,15 @@ def mulitply(a: int, b: int) -> int:
     print("mulitply Resolving ", a * b)
     return a * b
 
-llm_with_tools = llm.bind_tools([mulitply])
+def divide(a: int, b: int) -> float:
+    """Divides two numbers and returns the result."""
+    if b == 0:
+        raise ValueError("Cannot divide by zero.")
+    print("divide ARGS", a, "and", b)
+    print("divide Resolving ", a / b)
+    return a / b
+
+llm_with_tools = llm.bind_tools([mulitply, divide])
 
 class MessagesState(TypedDict):
     print("MessagesState")
@@ -59,6 +67,16 @@ def tool_calling_llm(state: MessagesState):
             print("5. Tool calling LLM - mulitply response", result)
 
             return {"messages": [response, AIMessage(content=f"Result: {result}")]}
+
+        elif tool_name == "divide":
+
+            print("4. Tool calling LLM - divide")
+
+            result = divide(**tool_args)  # Call the tool
+
+            print("5. Tool calling LLM - divide response", result)
+
+            return {"messages": [response, AIMessage(content=f"Result: {result}")]}
         
 
     print("6. Tool calling LLM - NOT ENTERING TOOK CALL")
@@ -68,7 +86,7 @@ def tool_calling_llm(state: MessagesState):
 
 builder = StateGraph(MessagesState)
 builder.add_node("node_1", tool_calling_llm)
-builder.add_node("tools", tool(mulitply))
+
 
 builder.add_edge(START, "node_1")
 builder.add_edge("node_1", END)
@@ -77,6 +95,6 @@ graph = builder.compile()
 
 
 
-messages = graph.invoke({"messages": HumanMessage(content="Multiply 5 and 6")})  # Multiply 5 and 6 or Hi
+messages = graph.invoke({"messages": HumanMessage(content="Hi")})  # Divide 10 by 2 or Multiply 5 and 6 or Hi
 for m in messages['messages']:
     m.pretty_print()
